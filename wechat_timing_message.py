@@ -6,9 +6,19 @@ import datetime
 import time
 from threading import Timer
 
+# 配置信息，额外需要配置下34行发送信息
+config = {
+    "send_time": "7:00",  # 定时发送时间
+    "send_interval": 86400,  # 间隔时间
+    "send_targer": "英雄联盟",  # 发送目标 
+    "is_cache": True,  # 微信是否缓存登陆（不用重复扫码）
+    "2D_code_size": 1,  # 二维码尺寸，在终端中设置为1，在pycharm中设置为2
+}
+
 
 class RepeatingTimer(Timer):
     """用于创建多线程的类"""
+
     def run(self):
         while not self.finished.is_set():
             self.function(*self.args, **self.kwargs)
@@ -95,14 +105,15 @@ def wait_time(target):
         return difference.seconds
 
 
-bot = Bot(cache_path=True, console_qr=1)
+bot = Bot(cache_path=config["is_cache"], console_qr=config["2D_code_size"])
+# cache_path:启动缓存，不用每次都扫码；console_qr:在终端中展示二维码，默认尺寸为2
 
-first_time = "7:00"  # 定时发送时间
+first_time = config["send_time"]  # 定时发送时间
 first_wait_send = wait_time(first_time)
 t1 = Timer(first_wait_send, begin)
 t1.start()
 
 t1.join()
-timer_start(spacing=86400, arg="英雄联盟")   # 间隔时间86400秒，发送对象"英雄联盟"
+timer_start(spacing=config["send_interval"], arg=config["send_targer"])  # 间隔时间86400秒，发送对象"英雄联盟"
 
 embed()
